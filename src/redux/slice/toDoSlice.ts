@@ -1,28 +1,34 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
-export interface listToDo {
+export interface IListToDo {
   id: number
   title: string
   isCompleted: boolean
 }
 
 let initialState = {
-  listToDo: [] as listToDo[]
+  listToDo: [] as IListToDo[]
 }
 
 const toDoSlice = createSlice({
-  name: 'auth',
+  name: 'toDo',
   initialState,
   reducers: {
-    addToDo: (state, action: any) => {
-      const obj: listToDo = {
+    addToDo: (state, action) => {
+      let id: number
+      if (state.listToDo.length < 1) {
+        id = 1
+      } else {
+        id = state.listToDo[state.listToDo.length - 1].id + 1
+      }
+      const obj: IListToDo = {
         title: action.payload,
-        id: state.listToDo[state.listToDo.length - 1].id + 1,
-        isCompleted: false
+        isCompleted: false,
+        id: id,
       }
       state.listToDo.push(obj)
     },
-    receivedToDo: (state, action: any) => {
+    receivedToDo: (state, action) => {
       state.listToDo = action.payload
     },
     delToDo: (state, action) => {
@@ -34,12 +40,12 @@ const toDoSlice = createSlice({
     },
     editToDo: (state, action) => {
       state.listToDo.forEach((value) => {
-        if (value.id === action.payload.id) {
-          value.title = action.payload.title
+        if (value.id === action.payload.data.id) {
+          value.title = action.payload.data.title
         }
       })
     },
-    complete: (state, action) => {
+    completed: (state, action) => {
       state.listToDo.forEach((value) => {
         if (value.id == action.payload) {
           value.isCompleted = !value.isCompleted
@@ -49,16 +55,6 @@ const toDoSlice = createSlice({
   }
 })
 
-export const { addToDo, receivedToDo, delToDo, complete, editToDo } = toDoSlice.actions
-
-export const getMyToDo = createAsyncThunk(
-  'auth/getMyToDO',
-  async (_, { dispatch }) => {
-    const ls = localStorage.getItem('ddd');
-    if (typeof ls === 'string' && ls.length > 0) {
-      dispatch(receivedToDo(JSON.parse(ls)))
-    }
-  }
-)
+export const { addToDo, receivedToDo, delToDo, completed, editToDo } = toDoSlice.actions
 
 export default toDoSlice.reducer
